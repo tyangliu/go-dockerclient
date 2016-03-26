@@ -1205,6 +1205,44 @@ func (c *Client) ExportContainer(opts ExportContainerOptions) error {
 	})
 }
 
+type CriuContainerOptions struct {
+	ID              string
+	ImagesDirectory string
+	WorkDirectory   string
+}
+
+func (c *Client) CheckpointContainer(opts CriuContainerOptions) error {
+	if opts.ID == "" {
+		return &NoSuchContainer{ID: opts.ID}
+	}
+	path := fmt.Sprintf("/containers/%s/checkpoint", opts.ID)
+	resp, err := c.do("POST", path, doOptions{data: opts})
+	if err != nil {
+		if e, ok := err.(*Error); ok && e.Status == http.StatusNotFound {
+			return &NoSuchContainer{ID: opts.ID}
+		}
+		return err
+	}
+	resp.Body.Close()
+	return nil
+}
+
+func (c *Client) RestoreContainer(opts CriuContainerOptions) error {
+	if opts.ID == "" {
+		return &NoSuchContainer{ID: opts.ID}
+	}
+	path := fmt.Sprintf("/containers/%s/restore", opts.ID)
+	resp, err := c.do("POST", path, doOptions{data: opts})
+	if err != nil {
+		if e, ok := err.(*Error); ok && e.Status == http.StatusNotFound {
+			return &NoSuchContainer{ID: opts.ID}
+		}
+		return err
+	}
+	resp.Body.Close()
+	return nil
+}
+
 // NoSuchContainer is the error returned when a given container does not exist.
 type NoSuchContainer struct {
 	ID  string

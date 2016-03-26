@@ -1698,6 +1698,82 @@ func TestExportContainerViaUnixSocket(t *testing.T) {
 	}
 }
 
+func TestCheckpointContainer(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusNoContent}
+	client := newTestClient(fakeRT)
+	id := "4fa6e0f0c6786287e131c3852c58a2e01cc697a68231826813597e4994f1d6e2"
+	opts := CriuContainerOptions{
+		ID: id,
+		ImagesDirectory: os.TempDir(),
+		WorkDirectory: "/",
+	}
+	err := client.CheckpointContainer(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := fakeRT.requests[0]
+	if req.Method != "POST" {
+		t.Errorf("CheckpointContainer(%q): wrong HTTP method. Want %q. Got %q.", id, "POST", req.Method)
+	}
+	expectedURL, _ := url.Parse(client.getURL("/containers/" + id + "/checkpoint"))
+	if gotPath := req.URL.Path; gotPath != expectedURL.Path {
+		t.Errorf("CheckpointContainer(%q): Wrong path in request. Want %q. Got %q.", id, expectedURL.Path, gotPath)
+	}
+}
+
+func TestCheckpointContainerNotFound(t *testing.T) {
+	client := newTestClient(&FakeRoundTripper{message: "no such container", status: http.StatusNotFound})
+	id := "a2334"
+	opts := CriuContainerOptions{
+		ID: id,
+		ImagesDirectory: os.TempDir(),
+		WorkDirectory: "/",
+	}
+	err := client.CheckpointContainer(opts)
+	expected := &NoSuchContainer{ID: "a2334"}
+	if !reflect.DeepEqual(err, expected) {
+		t.Errorf("CheckpointContainer: Wrong error returned. Want %#v. Got %#v.", expected, err)
+	}
+}
+
+func TestRestoreContainer(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusNoContent}
+	client := newTestClient(fakeRT)
+	id := "4fa6e0f0c6786287e131c3852c58a2e01cc697a68231826813597e4994f1d6e2"
+	opts := CriuContainerOptions{
+		ID: id,
+		ImagesDirectory: os.TempDir(),
+		WorkDirectory: "/",
+	}
+	err := client.RestoreContainer(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := fakeRT.requests[0]
+	if req.Method != "POST" {
+		t.Errorf("RestoreContainer(%q): wrong HTTP method. Want %q. Got %q.", id, "POST", req.Method)
+	}
+	expectedURL, _ := url.Parse(client.getURL("/containers/" + id + "/restore"))
+	if gotPath := req.URL.Path; gotPath != expectedURL.Path {
+		t.Errorf("RestoreContainer(%q): Wrong path in request. Want %q. Got %q.", id, expectedURL.Path, gotPath)
+	}
+}
+
+func TestRestoreContainerNotFound(t *testing.T) {
+	client := newTestClient(&FakeRoundTripper{message: "no such container", status: http.StatusNotFound})
+	id := "a2334"
+	opts := CriuContainerOptions{
+		ID: id,
+		ImagesDirectory: os.TempDir(),
+		WorkDirectory: "/",
+	}
+	err := client.RestoreContainer(opts)
+	expected := &NoSuchContainer{ID: "a2334"}
+	if !reflect.DeepEqual(err, expected) {
+		t.Errorf("RestoreContainer: Wrong error returned. Want %#v. Got %#v.", expected, err)
+	}
+}
+
 func runStreamConnServer(t *testing.T, network, laddr string, listening chan<- string, done chan<- int) {
 	defer close(done)
 	l, err := net.Listen(network, laddr)
