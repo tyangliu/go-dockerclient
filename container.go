@@ -1205,13 +1205,19 @@ func (c *Client) ExportContainer(opts ExportContainerOptions) error {
 	})
 }
 
-type CriuContainerOptions struct {
+// CheckpointContainerOptions is the set of parameters to the
+// CheckpointContainer method.
+type CheckpointContainerOptions struct {
 	ID              string
 	ImagesDirectory string
 	WorkDirectory   string
+	// Leave the container running after checkpointing.
+	LeaveRunning bool
 }
 
-func (c *Client) CheckpointContainer(opts CriuContainerOptions) error {
+// CheckpointContainer checkpoints a running container and saves the state
+// as image files into the specified image directory.
+func (c *Client) CheckpointContainer(opts CheckpointContainerOptions) error {
 	if opts.ID == "" {
 		return &NoSuchContainer{ID: opts.ID}
 	}
@@ -1227,7 +1233,17 @@ func (c *Client) CheckpointContainer(opts CriuContainerOptions) error {
 	return nil
 }
 
-func (c *Client) RestoreContainer(opts CriuContainerOptions) error {
+// RestoreContainerOptions is the set of parameters to the RestoreContainer
+// method.
+type RestoreContainerOptions struct {
+	ID              string
+	ImagesDirectory string
+	WorkDirectory   string
+}
+
+// RestoreContainer restores a container using image files from the specified
+// image directory.
+func (c *Client) RestoreContainer(opts RestoreContainerOptions) error {
 	if opts.ID == "" {
 		return &NoSuchContainer{ID: opts.ID}
 	}
