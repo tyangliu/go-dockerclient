@@ -1702,7 +1702,7 @@ func TestCheckpointContainer(t *testing.T) {
 	fakeRT := &FakeRoundTripper{message: "", status: http.StatusNoContent}
 	client := newTestClient(fakeRT)
 	id := "4fa6e0f0c6786287e131c3852c58a2e01cc697a68231826813597e4994f1d6e2"
-	opts := CheckpointContainerOptions{
+	opts := CriuOptions{
 		ID:              id,
 		ImagesDirectory: os.TempDir(),
 		WorkDirectory:   "/",
@@ -1725,7 +1725,7 @@ func TestCheckpointContainer(t *testing.T) {
 func TestCheckpointContainerNotFound(t *testing.T) {
 	client := newTestClient(&FakeRoundTripper{message: "no such container", status: http.StatusNotFound})
 	id := "a2334"
-	opts := CheckpointContainerOptions{
+	opts := CriuOptions{
 		ID:              id,
 		ImagesDirectory: os.TempDir(),
 		WorkDirectory:   "/",
@@ -1743,9 +1743,12 @@ func TestRestoreContainer(t *testing.T) {
 	client := newTestClient(fakeRT)
 	id := "4fa6e0f0c6786287e131c3852c58a2e01cc697a68231826813597e4994f1d6e2"
 	opts := RestoreContainerOptions{
-		ID:              id,
-		ImagesDirectory: os.TempDir(),
-		WorkDirectory:   "/",
+		CriuOpts: CriuOptions{
+			ID:              id,
+			ImagesDirectory: os.TempDir(),
+			WorkDirectory:   "/",
+		},
+		ForceRestore: false
 	}
 	err := client.RestoreContainer(opts)
 	if err != nil {
@@ -1765,9 +1768,12 @@ func TestRestoreContainerNotFound(t *testing.T) {
 	client := newTestClient(&FakeRoundTripper{message: "no such container", status: http.StatusNotFound})
 	id := "a2334"
 	opts := RestoreContainerOptions{
-		ID:              id,
-		ImagesDirectory: os.TempDir(),
-		WorkDirectory:   "/",
+		CriuOpts: CriuOptions{
+			ID:              id,
+			ImagesDirectory: os.TempDir(),
+			WorkDirectory:   "/",
+		},
+		ForceRestore: false
 	}
 	err := client.RestoreContainer(opts)
 	expected := &NoSuchContainer{ID: "a2334"}
