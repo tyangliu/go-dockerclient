@@ -1748,7 +1748,7 @@ func TestRestoreContainer(t *testing.T) {
 			ImagesDirectory: os.TempDir(),
 			WorkDirectory:   "/",
 		},
-		ForceRestore: false
+		ForceRestore: false,
 	}
 	err := client.RestoreContainer(opts)
 	if err != nil {
@@ -1773,7 +1773,7 @@ func TestRestoreContainerNotFound(t *testing.T) {
 			ImagesDirectory: os.TempDir(),
 			WorkDirectory:   "/",
 		},
-		ForceRestore: false
+		ForceRestore: false,
 	}
 	err := client.RestoreContainer(opts)
 	expected := &NoSuchContainer{ID: "a2334"}

@@ -169,7 +169,7 @@ func TestNetworkConnect(t *testing.T) {
 }
 
 func TestNetworkConnectWithEndpoint(t *testing.T) {
-	wantJSON := `{"Container":"foobar","EndpointConfig":{"IPAMConfig":{"IPv4Address":"8.8.8.8"},"Links":null,"Aliases":null},"Force":false}`
+	wantJSON := `{"Container":"foobar","EndpointSettings":{"IPAMConfig":{"IPv4Address":"8.8.8.8"},"Links":null,"Aliases":null},"Force":false}`
 	var wantObj NetworkConnectionOptions
 	json.NewDecoder(bytes.NewBuffer([]byte(wantJSON))).Decode(&wantObj)
 	id := "8dfafdbc3a40"
@@ -177,7 +177,7 @@ func TestNetworkConnectWithEndpoint(t *testing.T) {
 	client := newTestClient(fakeRT)
 	opts := NetworkConnectionOptions{
 		Container: "foobar",
-		EndpointConfig: &EndpointConfig{
+		EndpointSettings: &EndpointSettings{
 			IPAMConfig: &EndpointIPAMConfig{
 				IPv4Address: "8.8.8.8",
 			},
